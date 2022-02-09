@@ -19,6 +19,13 @@ public class PersonResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/all")
+    public Uni<List<Person>> all() {
+        return service.getAll();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/{name}")
     public Uni<List<Person>> personsByName(@PathParam("name") String name) {
         return service.getByName(name);

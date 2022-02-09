@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import io.netty.util.internal.ThreadLocalRandom;
 import io.smallrye.mutiny.Uni;
 import org.acme.getting.started.dto.PersonDto;
 import org.acme.getting.started.models.Country;
@@ -46,6 +47,13 @@ public class PersonService {
 
     }
 
+    public Uni<List<Person>> getAll() {
+
+        Uni<List<Person>> allPersons = Uni.createFrom().item(PERSONS).onItem().transform(persons->persons);
+
+        return allPersons;
+    }
+
     public Uni<List<Person>> getByName(String name) {
 
         Uni<List<Person>> filteredPersons = Uni.createFrom().emitter(emitter -> {
@@ -69,6 +77,7 @@ public class PersonService {
     public Uni<List<Person>> add(Person person) {
 
         Uni<List<Person>> allPersons = Uni.createFrom().item(PERSONS).onItem().transform(people -> {
+                    person.setId(ThreadLocalRandom.current().nextInt());
                     people.add(person);
                     return people;
                 })
@@ -101,6 +110,20 @@ public class PersonService {
     public Uni<List<Person>> delete(int id) {
 
 
-        return null;
+        Uni<Person> personUni = Uni.createFrom().emitter(emitter -> {
+
+            Optional<Person> firstPerson = PERSONS.stream().filter(p -> p.getId() == id).findFirst();
+
+            emitter.complete(firstPerson.get());
+
+        });
+
+        Uni<List<Person>> allPersons = personUni.onItem().transform(person1 -> {
+            PERSONS.remove(person1);
+
+            return PERSONS;
+        });
+
+        return allPersons;
     }
 }
