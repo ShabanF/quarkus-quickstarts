@@ -104,11 +104,6 @@ public class PersonService {
             return PERSONS;
         });
 
-        Uni<Person> invoke = personUni.onItem()
-                .invoke(i -> {
-                    System.out.println("Received item: " + i);
-                });
-
         return allPersons;
     }
 
