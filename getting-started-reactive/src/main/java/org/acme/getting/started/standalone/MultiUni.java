@@ -5,17 +5,26 @@ import io.smallrye.mutiny.Uni;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class MultiUni {
 
     public static void main(String[] args) {
 
-        //invokeUni();
-        //subscribe();
+         //invokeUni();
+         //subscribe();
 
         //subscribeMulti();
 
-        mapAndFlatMap();
+        //mapAndFlatMap();
+
+        //collectItems();
+
+        //flatMapAndConcatMap();
+
+        //filtering();
+
+        //testFunctional();
     }
 
     private static void invokeUni() {
@@ -71,5 +80,80 @@ public class MultiUni {
 
         hello2.subscribe().with(System.out::println);
 
+    }
+
+    private static void collectItems() {
+        Multi<String> multi = Multi.createFrom().items("a", "b");
+        Uni<List<String>> uni = multi.collect().asList();
+
+        multi.onItem().transform(s -> s).subscribe().with(s -> {
+            System.out.println(s);
+        });
+
+        uni.onItem().transform(s -> s).subscribe().with(strings -> {
+            System.out.println(strings.size());
+        });
+    }
+
+    private static void joinUnis() {
+
+        Uni<String> u1 = Uni.createFrom().item("a");
+        Uni<String> u2 = Uni.createFrom().item("b");
+        Uni<String> u3 = Uni.createFrom().item("b");
+
+        Uni<List<String>> unis = Uni.join().all(u1, u2, u3).andCollectFailures();
+
+    }
+
+    private static void mergeAndConcatinate() {
+
+        Multi<String> multi1 = Multi.createFrom().item("a");
+        Multi<String> multi2 = Multi.createFrom().item("b");
+        Multi<String> multi3 = Multi.createFrom().item("c");
+
+        Multi<String> multiMerge = Multi.createBy().merging().streams(multi1, multi2, multi3);
+
+        Multi<String> multiConcat = Multi.createBy().concatenating().streams(multi1, multi2, multi3);
+
+    }
+
+    private static void flatMapAndConcatMap() {
+
+        Multi<Integer> multi = Multi.createFrom().items(1, 2, 3);
+
+        List<Integer> list3 = multi
+                .concatMap(i -> {
+                    return Multi.createFrom().items(i);
+                })
+                .collect().asList()
+                .await().indefinitely();
+
+        multi.onItem().transformToMultiAndConcatenate(integer -> {
+            return Multi.createFrom().item(integer);
+        }).collect().asList();
+
+        System.out.println(list3);
+
+    }
+
+    private static void filtering() {
+
+        Multi<String> multi = Multi.createFrom().items("a", "b", "c", "b");
+        List<String> b = multi.select()
+                .where(string -> string.equals("b"))
+                .collect().asList().await().indefinitely();
+
+        System.out.println(b);
+
+
+    }
+
+    private static void testFunctional() {
+
+        TestFunction<String, Boolean> tf = s -> s.equals("abc");
+
+        Boolean abc = tf.apply("abc");
+
+        System.out.println(abc);
     }
 }
