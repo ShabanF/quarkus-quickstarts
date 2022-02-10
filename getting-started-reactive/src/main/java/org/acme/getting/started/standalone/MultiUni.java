@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -25,6 +26,8 @@ public class MultiUni {
         //filtering();
 
         //testFunctional();
+
+        filterListOfMulties();
     }
 
     private static void invokeUni() {
@@ -136,6 +139,28 @@ public class MultiUni {
 
     }
 
+    private static void filterListOfMulties() {
+
+        Multi<String> multi1 = Multi.createFrom().items("a", "b", "c");
+        Multi<String> multi2 = Multi.createFrom().items("d", "a", "f");
+        Multi<String> multi3 = Multi.createFrom().items("g", "h", "f");
+
+        List<Multi<String>> multies = Arrays.asList(multi1, multi2, multi3);
+
+        for (Multi<String> multi : multies) {
+
+            Multi<String> foundMulti = multi.select()
+                    .when(s -> Uni.createFrom().item(s.equals("a")))
+                    .onItem().transform(s->s);
+
+            foundMulti.subscribe().with(s -> {
+                System.out.println(s);
+            });
+
+        }
+
+    }
+
     private static void filtering() {
 
         Multi<String> multi = Multi.createFrom().items("a", "b", "c", "b");
@@ -152,8 +177,10 @@ public class MultiUni {
 
         TestFunction<String, Boolean> tf = s -> s.equals("abc");
 
-        Boolean abc = tf.apply("abc");
+        Boolean isTrue = tf.apply("abc");
 
-        System.out.println(abc);
+        System.out.println(isTrue);
     }
+
+
 }
