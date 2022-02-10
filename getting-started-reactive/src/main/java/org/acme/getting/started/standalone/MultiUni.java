@@ -149,13 +149,9 @@ public class MultiUni {
 
         for (Multi<String> multi : multies) {
 
-            Multi<String> foundMulti = multi.select()
-                    .when(s -> Uni.createFrom().item(s.equals("a")))
-                    .onItem().transform(s->s);
+            Multi<String> foundMulti = multi.filter(value->value.equals("a")).collect().first().toMulti();
 
-            foundMulti.subscribe().with(s -> {
-                System.out.println(s);
-            });
+            multies.add(foundMulti);
 
         }
 
