@@ -6,7 +6,6 @@ import io.smallrye.mutiny.Uni;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 
 public class MultiUni {
 
@@ -25,9 +24,9 @@ public class MultiUni {
 
         //filtering();
 
-        //testFunctional();
+        testFunctional();
 
-        filterListOfMulties();
+        // filterListOfMulties();
     }
 
     private static void invokeUni() {
@@ -147,11 +146,11 @@ public class MultiUni {
 
         List<Multi<String>> multies = Arrays.asList(multi1, multi2, multi3);
 
+        List<Multi<String>> multies2 = new ArrayList<>();
+
         for (Multi<String> multi : multies) {
 
             Multi<String> foundMulti = multi.filter(value->value.equals("a")).collect().first().toMulti();
-
-            multies.add(foundMulti);
 
         }
 
@@ -171,9 +170,9 @@ public class MultiUni {
 
     private static void testFunctional() {
 
-        TestFunction<String, Boolean> tf = s -> s.equals("abc");
+        TestFunction<String, String, Boolean> tf = (t,u) -> t.equals(u);
 
-        Boolean isTrue = tf.apply("abc");
+        Boolean isTrue = tf.test("abc", "fasdf");
 
         System.out.println(isTrue);
     }
