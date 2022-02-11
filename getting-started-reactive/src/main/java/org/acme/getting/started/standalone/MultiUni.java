@@ -2,6 +2,7 @@ package org.acme.getting.started.standalone;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.groups.MultiFlatten;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +17,7 @@ public class MultiUni {
 
         //subscribeMulti();
 
-        //mapAndFlatMap();
+        mapAndFlatMap();
 
         //collectItems();
 
@@ -24,9 +25,11 @@ public class MultiUni {
 
         //filtering();
 
-        testFunctional();
+        // testFunctional();
 
         // filterListOfMulties();
+
+        // mergeAndConcatinate();
     }
 
     private static void invokeUni() {
@@ -72,15 +75,42 @@ public class MultiUni {
     private static void mapAndFlatMap() {
 
         Uni<String> uni = Uni.createFrom().item("hello");
+        Multi<String> multi = Multi.createFrom().items("a", "b");
 
-        Uni<String> hello2 = uni.flatMap(s -> {
+        Uni<Uni<String>> uniMap1 = uni.map(s -> {
 
             Uni<String> s1 = Uni.createFrom().item(s.concat("hello2"));
 
             return s1;
         });
 
-        hello2.subscribe().with(System.out::println);
+        Uni<String> uniMap2 = uni.map(s -> {
+            return s;
+        });
+
+        Multi<Multi<String>> multiMap = multi.map(s -> {
+            Multi<String> item = Multi.createFrom().item(s);
+            return item;
+        });
+
+        Uni<String> uniFlatMap = uni.flatMap(s -> {
+
+            Uni<String> s1 = Uni.createFrom().item(s.concat("hello2"));
+
+            return s1;
+        });
+
+
+        Multi<String> multiFlatMap = multi.flatMap(s -> {
+            Multi<String> item = Multi.createFrom().item(s);
+            return item;
+        });
+
+
+        // only on multi
+        Multi<String> multi1 = multi.concatMap(string -> {
+            return Multi.createFrom().item(string);
+        });
 
     }
 
@@ -117,25 +147,30 @@ public class MultiUni {
 
         Multi<String> multiConcat = Multi.createBy().concatenating().streams(multi1, multi2, multi3);
 
+        multiMerge.subscribe().with(s -> {
+            System.out.println(s);
+        });
+
+        multiConcat.subscribe().with(s -> {
+            System.out.println(s);
+        });
+
     }
 
     private static void flatMapAndConcatMap() {
 
         Multi<Integer> multi = Multi.createFrom().items(1, 2, 3);
 
-        List<Integer> list3 = multi
-                .concatMap(i -> {
-                    return Multi.createFrom().items(i);
-                })
-                .collect().asList()
-                .await().indefinitely();
+        MultiFlatten<Integer, Integer> integerIntegerMultiFlatten = multi.onItem().transformToUni(integer -> {
+            return Uni.createFrom().item(integer);
+        });
 
-        multi.onItem().transformToMultiAndConcatenate(integer -> {
+
+        Multi<Integer> integerMulti = multi.onItem().transformToMultiAndConcatenate(integer -> {
             return Multi.createFrom().item(integer);
-        }).collect().asList();
+        });
 
-        System.out.println(list3);
-
+        System.out.println();
     }
 
     private static void filterListOfMulties() {
