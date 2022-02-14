@@ -40,7 +40,7 @@ public class PersonServiceMongoReactive {
         return persons;
     }
 
-    private Uni<List<PersonDto>> list() {
+    public Uni<List<PersonDto>> list() {
 
         Uni<List<PersonDto>> persons = getCollection().find().map(p -> {
             String toJson = p.toJson();

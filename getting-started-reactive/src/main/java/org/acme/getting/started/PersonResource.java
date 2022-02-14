@@ -18,9 +18,6 @@ public class PersonResource {
     @Inject
     PersonService personService;
 
-    @Inject
-    PersonServiceMongoReactive personServiceMongoReactive;
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/all")
@@ -61,14 +58,6 @@ public class PersonResource {
     @Path("/delete/{id}")
     public Uni<List<Person>> deletePerson(@PathParam("id") int id) {
         return personService.delete(id);
-    }
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/personMongo")
-    public Uni<List<PersonDto>> addPersonToMongo(PersonDto person) {
-
-        return personServiceMongoReactive.add(person);
     }
 
 }
