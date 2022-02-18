@@ -1,5 +1,6 @@
 package org.acme.getting.started;
 
+import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -15,7 +16,6 @@ import java.util.List;
 @Path("/api/person")
 public class PersonResource {
 
-    @Inject
     PersonService personService;
 
     @GET
